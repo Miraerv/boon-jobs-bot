@@ -57,10 +57,15 @@ async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["name"] = update.message.text
     branches = [
-        ["203 микрорайон", "Дзержинского"],
-        ["Пояркова", "Залог"],
-        ["Прометей", "Рыдзинского"],
-        ["Ростелеком", "пл. Дружбы", "Авиапорт"]
+        ["203 микрорайон"],
+        ["Дзержинского"],
+        ["Пояркова"],
+        ["Залог"],
+        ["Прометей"],
+        ["Рыдзинского"],
+        ["Ростелеком"],
+        ["пл. Дружбы"],
+        ["Авиапорт"],
     ]
     await update.message.reply_text(
         "Выбери ближайший или желаемый филиал:",
