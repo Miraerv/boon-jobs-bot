@@ -76,7 +76,11 @@ async def name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 4 ---
 async def branch(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["branch"] = update.message.text
-    schedules = [["08:00–16:00", "16:00–23:00", "08:00–23:00"]]
+    schedules = [
+        ["08:00–16:00"], 
+        ["16:00–23:00"], 
+        ["08:00–23:00"],
+    ]
     await update.message.reply_text(
         "Какой график работы вам удобен?",
         reply_markup=ReplyKeyboardMarkup(schedules, one_time_keyboard=True, resize_keyboard=True)
