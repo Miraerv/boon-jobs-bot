@@ -8,6 +8,7 @@ from telegram.ext import (
     ConversationHandler,
     ContextTypes,
     filters,
+    CallbackQueryHandler,
 )
 
 load_dotenv()
