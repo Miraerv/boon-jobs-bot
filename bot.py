@@ -45,8 +45,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- Шаг 2 ---
 async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    contact = update.message.contact
-    context.user_data["phone"] = contact.phone_number
+    if update.message.contact:
+        context.user_data["phone"] = update.message.contact.phone_number
+    else:
+        context.user_data["phone"] = update.message.text
     
     await update.message.reply_text(
         "Отлично, номер для связи получен. Теперь напиши полные фамилию и имя.",
@@ -214,12 +216,15 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Перезапуск ---
 async def restart_form_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    await query.answer()  # Подтверждаем нажатие кнопки
     
+    # Очищаем данные пользователя
     context.user_data.clear()
     
+    # Редактируем сообщение, убираем кнопку
     await query.edit_message_text("Начинаем заполнение анкеты заново...")
     
+    # Запускаем анкету с начала - первый вопрос про телефон
     await query.message.reply_text(
         "Поделитесь своим контактом или введите номер телефона:",
         reply_markup=ReplyKeyboardMarkup(
