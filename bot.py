@@ -110,21 +110,15 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 7 ---
 async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["selfemployed"] = update.message.text
-    
     # Проверяем ответ пользователя
     if update.message.text.lower() == "нет":
-        # Создаем кнопку для перезапуска анкеты
-        keyboard = [[InlineKeyboardButton("🔄 Заполнить анкету заново", callback_data="restart_form")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        # Завершаем разговор с информационным сообщением и кнопкой
+        # Завершаем разговор с сообщением о необходимости начать заново
         await update.message.reply_text(
-            "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого. "
-            "Статус самозанятого можно оформить через приложение «Мой налог».",
-            reply_markup=reply_markup
+            "К сожалению, для работы у нас требуется статус самозанятого. "
+            "Если передумаете, вы можете заполнить анкету снова, нажав /start.",
+            reply_markup=ReplyKeyboardRemove() # Убираем клавиатуру
         )
-        return ConversationHandler.END  # Завершаем разговор
-        
+        return ConversationHandler.END # Завершаем разговор
     elif update.message.text.lower() == "да":
         # Продолжаем к следующему шагу
         await update.message.reply_text(
@@ -132,7 +126,6 @@ async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=ReplyKeyboardRemove()
         )
         return SALARY_EXPECT
-        
     else:
         # Если ответ не "Да" или "Нет", просим выбрать из предложенных вариантов
         await update.message.reply_text(
@@ -212,26 +205,6 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Диалог завершён.")
     return ConversationHandler.END
 
-# --- Перезапуск ---
-async def restart_form_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    context.user_data.clear()
-    await query.edit_message_text("Начинаем заполнение анкеты заново...")
-    
-    contact_button = KeyboardButton("📞 Поделиться контактом", request_contact=True)
-    keyboard = ReplyKeyboardMarkup(
-        [[contact_button]], 
-        one_time_keyboard=True, 
-        resize_keyboard=True
-    )
-    
-    await query.message.reply_text(
-        "Поделитесь своим контактом или введите номер телефона:",
-        reply_markup=keyboard
-    )
-    return PHONE
-
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
 
@@ -253,10 +226,5 @@ if __name__ == "__main__":
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
-    restart_callback_handler = CallbackQueryHandler(restart_form_callback, pattern="restart_form")
-
-
     app.add_handler(conv_handler)
-    app.add_handler(restart_callback_handler)
-
     app.run_polling()
