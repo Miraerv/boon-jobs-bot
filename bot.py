@@ -113,7 +113,7 @@ async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.text.lower() == "нет":
         # Завершаем разговор с информационным сообщением
         await update.message.reply_text(
-            "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого."
+            "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого. "
             "Статус самозанятого можно оформить через приложение «Мой налог».",
             reply_markup=ReplyKeyboardRemove()
         )
