@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from telegram import ReplyKeyboardMarkup, Update, KeyboardButton
+from telegram import ReplyKeyboardMarkup, Update, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -46,7 +46,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     contact = update.message.contact
     context.user_data["phone"] = contact.phone_number
-    await update.message.reply_text("Отлично, номер для связи получен. Теперь напиши полные фамилию и имя.", reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True))
+    
+    await update.message.reply_text(
+        "Отлично, номер для связи получен. Теперь напиши полные фамилию и имя.",
+        reply_markup=ReplyKeyboardRemove()
+    )
     return NAME
 
 # --- Шаг 3 ---
@@ -60,7 +64,7 @@ async def name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     await update.message.reply_text(
         "Выбери ближайший или желаемый филиал:",
-        reply_markup=ReplyKeyboardMarkup(branches, one_time_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(branches, one_time_keyboard=True, resize_keyboard=True)
     )
     return BRANCH
 
@@ -70,7 +74,7 @@ async def branch(update: Update, context: ContextTypes.DEFAULT_TYPE):
     schedules = [["08:00–16:00", "16:00–23:00", "08:00–23:00"]]
     await update.message.reply_text(
         "Какой график работы вам удобен?",
-        reply_markup=ReplyKeyboardMarkup(schedules, one_time_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(schedules, one_time_keyboard=True, resize_keyboard=True)
     )
     return SCHEDULE
 
@@ -79,7 +83,7 @@ async def schedule(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["schedule"] = update.message.text
     await update.message.reply_text(
         "Есть ли опыт работы в сборке заказов, на складе или в доставке?",
-        reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
     )
     return EXPERIENCE
 
@@ -88,7 +92,7 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["experience"] = update.message.text
     await update.message.reply_text(
         "Готовы ли вы оформить статус самозанятого через приложение «Мой налог»?",
-        reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
     )
     return SELFEMPLOYED
 
