@@ -46,7 +46,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     contact = update.message.contact
     context.user_data["phone"] = contact.phone_number
-    await update.message.reply_text("Отлично! Напиши полное имя и фамилию.", reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True))
+    await update.message.reply_text("Отлично, номер для связи получен. Теперь напиши полные фамилию и имя.", reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True))
     return NAME
 
 # --- Шаг 3 ---
