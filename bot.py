@@ -114,9 +114,10 @@ async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.text.lower() == "нет":
         # Завершаем разговор с сообщением о необходимости начать заново
         await update.message.reply_text(
-            "К сожалению, для работы у нас требуется статус самозанятого. "
-            "Если передумаете, вы можете заполнить анкету снова, нажав /start.",
-            reply_markup=ReplyKeyboardRemove() # Убираем клавиатуру
+            "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого. "
+            "Статус самозанятого можно оформить через приложение «Мой налог».\n\n"
+            "Если вы согласны, заполните анкету заново, нажав /start.",
+            reply_markup=ReplyKeyboardRemove()
         )
         return ConversationHandler.END # Завершаем разговор
     elif update.message.text.lower() == "да":
