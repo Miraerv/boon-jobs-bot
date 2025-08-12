@@ -108,11 +108,32 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 7 ---
 async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["selfemployed"] = update.message.text
-    await update.message.reply_text(
-        "Какой минимальный доход вы ожидаете от работы?",
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return SALARY_EXPECT
+    
+    # Проверяем ответ пользователя
+    if update.message.text.lower() == "нет":
+        # Завершаем разговор с информационным сообщением
+        await update.message.reply_text(
+            "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого."
+            "Статус самозанятого можно оформить через приложение «Мой налог».",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END  # Завершаем разговор
+    
+    elif update.message.text.lower() == "да":
+        # Продолжаем к следующему шагу
+        await update.message.reply_text(
+            "Какой минимальный доход вы ожидаете от работы?",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return SALARY_EXPECT
+    
+    else:
+        # Если ответ не "Да" или "Нет", просим выбрать из предложенных вариантов
+        await update.message.reply_text(
+            "Пожалуйста, выберите один из предложенных вариантов: «Да» или «Нет»",
+            reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
+        )
+        return SELFEMPLOYED
 
 # --- Шаг 8 ---
 async def salary_expect(update: Update, context: ContextTypes.DEFAULT_TYPE):
