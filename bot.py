@@ -108,7 +108,10 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 7 ---
 async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["selfemployed"] = update.message.text
-    await update.message.reply_text("Какой минимальный доход вы ожидаете от работы?")
+    await update.message.reply_text(
+        "Какой минимальный доход вы ожидаете от работы?",
+        reply_markup=ReplyKeyboardRemove()
+    )
     return SALARY_EXPECT
 
 # --- Шаг 8 ---
