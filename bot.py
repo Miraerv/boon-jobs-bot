@@ -31,7 +31,6 @@ MANAGER_ID = int(os.getenv("MANAGER_ID"))
 # --- Шаг 1 ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    # Кнопка для запроса контакта
     contact_button = KeyboardButton("📱 Поделиться номером", request_contact=True)
     keyboard = ReplyKeyboardMarkup([[contact_button]], one_time_keyboard=True, resize_keyboard=True)
 
@@ -216,25 +215,21 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Перезапуск ---
 async def restart_form_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()  # Подтверждаем нажатие кнопки
-    
-    # Очищаем данные пользователя
+    await query.answer()
     context.user_data.clear()
-    
-    # Редактируем сообщение, убираем кнопку
     await query.edit_message_text("Начинаем заполнение анкеты заново...")
     
-    # Запускаем анкету с начала - первый вопрос про телефон
-    await query.message.reply_text(
-        "Поделитесь своим контактом или введите номер телефона:",
-        reply_markup=ReplyKeyboardMarkup(
-            [["📞 Поделиться контактом"]], 
-            one_time_keyboard=True, 
-            resize_keyboard=True,
-            request_contact=True
-        )
+    contact_button = KeyboardButton("📞 Поделиться контактом", request_contact=True)
+    keyboard = ReplyKeyboardMarkup(
+        [[contact_button]], 
+        one_time_keyboard=True, 
+        resize_keyboard=True
     )
     
+    await query.message.reply_text(
+        "Поделитесь своим контактом или введите номер телефона:",
+        reply_markup=keyboard
+    )
     return PHONE
 
 if __name__ == "__main__":
