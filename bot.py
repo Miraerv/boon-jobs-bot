@@ -1,4 +1,5 @@
 import os
+import asyncio
 from dotenv import load_dotenv
 from telegram import ReplyKeyboardMarkup, Update, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -10,6 +11,8 @@ from telegram.ext import (
     filters,
     CallbackQueryHandler,
 )
+from telegram.error import NetworkError
+import httpx
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -228,4 +231,14 @@ if __name__ == "__main__":
     )
 
     app.add_handler(conv_handler)
-    app.run_polling()
+
+    # Перезапуск при обрывах
+    while True:
+        try:
+            app.run_polling(drop_pending_updates=True)
+        except (NetworkError, httpx.ReadError) as e:
+            print(f"[WARN] Потеряно соединение: {e}. Перезапуск через 5 сек...")
+            asyncio.sleep(5)
+        except Exception as e:
+            print(f"[ERROR] Неожиданная ошибка: {e}")
+            break
