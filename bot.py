@@ -1,19 +1,33 @@
 import os
 import asyncio
+import logging
 from dotenv import load_dotenv
-from telegram import ReplyKeyboardMarkup, Update, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import (
+    ReplyKeyboardMarkup,
+    Update,
+    KeyboardButton,
+    ReplyKeyboardRemove
+)
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
     MessageHandler,
     ConversationHandler,
     ContextTypes,
-    filters,
-    CallbackQueryHandler,
+    filters
 )
 from telegram.error import NetworkError
 import httpx
 
+# --- Логгер ---
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
+
+# --- Переменные окружения ---
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 MANAGER_ID = int(os.getenv("MANAGER_ID"))
@@ -232,13 +246,12 @@ if __name__ == "__main__":
 
     app.add_handler(conv_handler)
 
-    # Перезапуск при обрывах
     while True:
         try:
             app.run_polling(drop_pending_updates=True)
         except (NetworkError, httpx.ReadError) as e:
-            print(f"[WARN] Потеряно соединение: {e}. Перезапуск через 5 сек...")
+            logger.warning(f"Потеряно соединение: {e}. Перезапуск через 5 сек...")
             asyncio.sleep(5)
         except Exception as e:
-            print(f"[ERROR] Неожиданная ошибка: {e}")
+            logger.error(f"Неожиданная ошибка: {e}", exc_info=True)
             break
