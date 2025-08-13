@@ -119,7 +119,7 @@ async def schedule(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["experience"] = update.message.text
     await update.message.reply_text(
-        "Готовы ли вы оформить статус самозанятого через приложение «Мой налог»?",
+        "Готов ли ты оформить статус самозанятого через приложение «Мой налог»?",
         reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
     )
     return SELFEMPLOYED
@@ -133,21 +133,21 @@ async def selfemployed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "Спасибо за ответы! Чтобы работать у нас, необходимо оформить статус самозанятого. "
             "Статус самозанятого можно оформить через приложение «Мой налог».\n\n"
-            "Если вы согласны, заполните анкету заново, нажав /start.",
+            "Если согласны, заполните анкету заново, нажав /start.",
             reply_markup=ReplyKeyboardRemove()
         )
         return ConversationHandler.END # Завершаем разговор
     elif update.message.text.lower() == "да":
         # Продолжаем к следующему шагу
         await update.message.reply_text(
-            "Какой минимальный доход вы ожидаете от работы?",
+            "Какой минимальный доход ты ожидаешь от работы?",
             reply_markup=ReplyKeyboardRemove()
         )
         return SALARY_EXPECT
     else:
         # Если ответ не "Да" или "Нет", просим выбрать из предложенных вариантов
         await update.message.reply_text(
-            "Пожалуйста, выберите один из предложенных вариантов: «Да» или «Нет»",
+            "Пожалуйста, выбери один из предложенных вариантов: «Да» или «Нет»",
             reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
         )
         return SELFEMPLOYED
