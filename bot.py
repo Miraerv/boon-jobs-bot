@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # --- Переменные окружения ---
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
-MANAGER_IDS = int(os.getenv("MANAGER_IDS"))
+MANAGER_IDS = os.getenv("MANAGER_IDS")
 
 # Этапы диалога
 (
