@@ -70,7 +70,6 @@ async def position(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = ReplyKeyboardMarkup([[contact_button]], one_time_keyboard=True, resize_keyboard=True)
 
     await update.message.reply_text(
-        f"Привет, {user.first_name}!\n"
         "Отлично! Теперь уточни, пожалуйста, свой номер телефона.",
         reply_markup=keyboard
     )
