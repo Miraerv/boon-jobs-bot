@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # --- Переменные окружения ---
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
-MANAGER_ID = int(os.getenv("MANAGER_ID"))
+MANAGER_IDS = int(os.getenv("MANAGER_IDS"))
 
 # Этапы диалога
 (
@@ -255,7 +255,11 @@ async def vacancy_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Самозанятый: {user_data.get('selfemployed')}\n"
             f"Доход ожидания: {user_data.get('salary_expect')}"
         )
-        await context.bot.send_message(chat_id=MANAGER_ID, text=text_to_manager)
+        for manager_id in MANAGER_IDS:
+            try:
+                await context.bot.send_message(chat_id=manager_id, text=text_to_manager)
+            except Exception as e:
+                logger.error(f"Не удалось отправить сообщение менеджеру {manager_id}: {e}")
 
         return ConversationHandler.END
     else:
