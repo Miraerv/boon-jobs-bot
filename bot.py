@@ -1,4 +1,5 @@
 import os
+import ast
 import asyncio
 import logging
 from dotenv import load_dotenv
@@ -30,8 +31,15 @@ logger = logging.getLogger(__name__)
 # --- Переменные окружения ---
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
-MANAGER_IDS = os.getenv("MANAGER_IDS")
+manager_ids_str = os.getenv("MANAGER_IDS")
 
+if manager_ids_str:
+    try:
+        MANAGER_IDS = ast.literal_eval(manager_ids_str)
+    except (ValueError, SyntaxError):
+        logger.error("Ошибка: Не удалось распознать переменную MANAGER_IDS как список.")
+else:
+    logger.error("Переменная MANAGER_IDS не найдена.")
 # Этапы диалога
 (
     POSITION,
