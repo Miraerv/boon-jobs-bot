@@ -6,6 +6,7 @@ import io
 import csv
 from contextlib import contextmanager
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 load_dotenv()
 DB_PATH = os.getenv("DB_PATH")
@@ -103,28 +104,56 @@ def delete_application(app_id: int):
         return cur.rowcount  # 1 если удалено, 0 если нет
 
 
-def export_applications_csv():
+def export_applications_csv(position: str | None = None):
     """
     Возвращает bytes CSV всех заявок в кодировке utf-8.
-    Заголовок соответствует полям таблицы.
+    Заголовки на русском, время приведено к Якутскому времени (UTC+9)
+    position: 'Сборщик', 'Курьер' или None для всех
     """
     with get_connection() as conn:
-        cur = conn.execute("""
-            SELECT id, position, phone, name, age, branch, schedule,
-                   experience, driving_experience, selfemployed, salary_expect, created_at
-            FROM applications
-            ORDER BY created_at DESC
-        """)
+        if position in ("Сборщик", "Курьер"):
+            cur = conn.execute("""
+                SELECT id, position, phone, name, age, branch, schedule,
+                       experience, driving_experience, selfemployed, salary_expect, created_at
+                FROM applications
+                WHERE position = ?
+                ORDER BY created_at DESC
+            """, (position,))
+        else:
+            cur = conn.execute("""
+                SELECT id, position, phone, name, age, branch, schedule,
+                       experience, driving_experience, selfemployed, salary_expect, created_at
+                FROM applications
+                ORDER BY created_at DESC
+            """)
         rows = cur.fetchall()
 
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "id", "position", "phone", "name", "age", "branch", "schedule",
-        "experience", "driving_experience", "selfemployed", "salary_expect", "created_at"
+        "ID", "Позиция", "Телефон", "Имя", "Возраст", "Филиал", "График",
+        "Опыт", "Опыт вождения", "Самозанятый", "Ожидаемый доход", "Создано"
     ])
     for r in rows:
-        writer.writerow([r["id"], r["position"], r["phone"], r["name"], r["age"], r["branch"],
-                         r["schedule"], r["experience"], r["driving_experience"], r["selfemployed"],
-                         r["salary_expect"], r["created_at"]])
+        created = r["created_at"]
+        if created:
+            dt = datetime.strptime(created, "%Y-%m-%d %H:%M:%S") + timedelta(hours=9)
+            created_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            created_str = ""
+        writer.writerow([
+            r["id"],
+            r["position"] or "",
+            r["phone"] or "",
+            r["name"] or "",
+            r["age"] or "",
+            r["branch"] or "",
+            r["schedule"] or "",
+            r["experience"] or "",
+            r["driving_experience"] or "",
+            r["selfemployed"] or "",
+            r["salary_expect"] or "",
+            created_str
+        ])
     return output.getvalue().encode("utf-8")
+

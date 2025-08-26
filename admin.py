@@ -98,8 +98,9 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()  # acknowledge
 
     data = query.data or ""
+
+    # --- Просмотр заявки ---
     if data.startswith("view:"):
-        # Формат: view:{id}:{page}
         parts = data.split(":")
         app_id = int(parts[1])
         page = int(parts[2]) if len(parts) > 2 else 0
@@ -130,35 +131,48 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(kb))
 
+    # --- Удаление заявки ---
     elif data.startswith("del:"):
-        # Формат: del:{id}:{page}
         parts = data.split(":")
         app_id = int(parts[1])
         page = int(parts[2]) if len(parts) > 2 else 0
         deleted = delete_application(app_id)
         if deleted:
-            # пересобираем и редерим страницу
             text, markup, page, _ = await _render_apps_page_text_and_markup(page)
             await query.edit_message_text(text=text, reply_markup=markup)
         else:
             await query.answer("Не удалось удалить заявку.", show_alert=True)
 
+    # --- Навигация по страницам ---
     elif data.startswith("page:"):
         page = int(data.split(":")[1])
         text, markup, page, _ = await _render_apps_page_text_and_markup(page)
         await query.edit_message_text(text=text, reply_markup=markup)
 
+    # --- Первый клик на экспорт: выбор позиции ---
     elif data == "export":
-        csv_bytes = export_applications_csv()
+        kb = [
+            [InlineKeyboardButton("Все", callback_data="export_all")],
+            [InlineKeyboardButton("Сборщики", callback_data="export_Сборщик")],
+            [InlineKeyboardButton("Курьеры", callback_data="export_Курьер")]
+        ]
+        await query.edit_message_text("Выберите позицию для экспорта:", reply_markup=InlineKeyboardMarkup(kb))
+
+    # --- Обработка выбора позиции для экспорта ---
+    elif data.startswith("export_"):
+        pos = data[len("export_"):]
+        if pos.lower() == "all":
+            pos = None
+        csv_bytes = export_applications_csv(position=pos)
         bio = io.BytesIO(csv_bytes)
-        bio.name = "applications.csv"
+        bio.name = f"Заявки_{pos or 'Все'}.csv"
         bio.seek(0)
-        # отправляем файл в чат
         await context.bot.send_document(chat_id=query.message.chat_id, document=bio)
         await query.answer("CSV отправлен.")
 
     else:
         await query.answer()  # нечего делать
+
 
 
 # ---- регистрируем хендлеры в приложении ----
