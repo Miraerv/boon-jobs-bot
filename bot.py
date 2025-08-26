@@ -289,10 +289,11 @@ async def vacancy_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Филиал: {user_data.get('branch')}\n"
             f"График: {user_data.get('schedule')}\n"
             f"Опыт: {user_data.get('experience')}\n"
-            f"Опыт вождения: {user_data.get('driving_experience')}\n" 
-            f"Самозанятый: {user_data.get('selfemployed')}\n"
-            f"Доход ожидания: {user_data.get('salary_expect')}"
+            f"Опыт вождения: {'' if user_data.get('position') == 'Сборщик' else user_data.get('driving_experience','')}\n" 
+            f"Самозанятый: {user_data.get('selfemployed','')}\n"
+            f"Доход ожидания: {user_data.get('salary_expect','')}"
         )
+
         for manager_id in MANAGER_IDS:
             try:
                 await context.bot.send_message(chat_id=manager_id, text=text_to_manager)
