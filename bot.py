@@ -45,14 +45,16 @@ else:
     POSITION,
     PHONE,
     NAME,
+    AGE,
     BRANCH,
     SCHEDULE,
     EXPERIENCE,
+    DRIVING_EXPERIENCE,
     SELFEMPLOYED,
     SALARY_EXPECT,
     VACANCY_INFO,
     FINAL,
-) = range(10)
+) = range(12)
 
 
 
@@ -91,7 +93,7 @@ async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["phone"] = update.message.text
     
     await update.message.reply_text(
-        "Отлично! Напиши полное имя и возраст.",
+        "Отлично! Напиши своё полное имя.",
         reply_markup=ReplyKeyboardRemove()
     )
     return NAME
@@ -99,6 +101,11 @@ async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 4 ---
 async def name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["name"] = update.message.text
+    await update.message.reply_text("Сколько тебе полных лет?")
+    return AGE
+
+async def age(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["age"] = update.message.text
     branches = [
         ["203 микрорайон (202-203 мкр)"],
         ["Дзержинского (Дом быта-Крытый рынок)"],
@@ -142,6 +149,22 @@ async def schedule(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Шаг 7 ---
 async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["experience"] = update.message.text
+    position = context.user_data.get("position", "").lower()
+
+    if position == "курьер":
+        await update.message.reply_text(
+            "Есть ли у Вас опыт вождения? (перечислите виды транспорта и стаж вождения)"
+        )
+        return DRIVING_EXPERIENCE
+    else:
+        await update.message.reply_text(
+            "Готов ли ты оформить статус самозанятого через приложение «Мой налог»?",
+            reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
+        )
+        return SELFEMPLOYED
+    
+async def driving_experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["driving_experience"] = update.message.text
     await update.message.reply_text(
         "Готов ли ты оформить статус самозанятого через приложение «Мой налог»?",
         reply_markup=ReplyKeyboardMarkup([["Да", "Нет"]], one_time_keyboard=True, resize_keyboard=True)
@@ -258,10 +281,12 @@ async def vacancy_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📥 Новая заявка:\n"
             f"Позиция: {user_data.get('position')}\n"
             f"Имя: {user_data.get('name')}\n"
+            f"Возраст: {user_data.get('age')}\n" 
             f"Телефон: {user_data.get('phone')}\n"
             f"Филиал: {user_data.get('branch')}\n"
             f"График: {user_data.get('schedule')}\n"
             f"Опыт: {user_data.get('experience')}\n"
+            f"Опыт вождения: {user_data.get('driving_experience')}\n" 
             f"Самозанятый: {user_data.get('selfemployed')}\n"
             f"Доход ожидания: {user_data.get('salary_expect')}"
         )
@@ -293,9 +318,11 @@ if __name__ == "__main__":
                 MessageHandler(filters.TEXT & ~filters.COMMAND, phone),
             ],
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, name)],
+            AGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, age)],
             BRANCH: [MessageHandler(filters.TEXT & ~filters.COMMAND, branch)],
             SCHEDULE: [MessageHandler(filters.TEXT & ~filters.COMMAND, schedule)],
             EXPERIENCE: [MessageHandler(filters.TEXT & ~filters.COMMAND, experience)],
+            DRIVING_EXPERIENCE: [MessageHandler(filters.TEXT & ~filters.COMMAND, driving_experience)],
             SELFEMPLOYED: [MessageHandler(filters.TEXT & ~filters.COMMAND, selfemployed)],
             SALARY_EXPECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, salary_expect)],
             VACANCY_INFO: [MessageHandler(filters.TEXT & ~filters.COMMAND, vacancy_info)],
