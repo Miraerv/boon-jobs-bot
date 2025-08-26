@@ -18,6 +18,7 @@ from telegram.ext import (
     filters
 )
 from telegram.error import NetworkError
+from db import save_application, init_db
 import httpx
 
 # --- Логгер ---
@@ -277,6 +278,7 @@ async def vacancy_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         # 2. Сообщение менеджеру
         user_data = context.user_data
+        save_application(user_data)
         text_to_manager = (
             f"📥 Новая заявка:\n"
             f"Позиция: {user_data.get('position')}\n"
@@ -307,6 +309,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 if __name__ == "__main__":
+    init_db()
     app = ApplicationBuilder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
