@@ -177,5 +177,5 @@ async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ---- регистрируем хендлеры в приложении ----
 def register_admin_handlers(app):
-    app.add_handler(CommandHandler("apps", apps_list))
+    app.add_handler(CommandHandler("admin", apps_list))
     app.add_handler(CallbackQueryHandler(admin_callback))
