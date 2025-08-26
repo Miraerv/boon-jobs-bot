@@ -2,6 +2,7 @@ import os
 import ast
 import asyncio
 import logging
+import httpx
 from dotenv import load_dotenv
 from telegram import (
     ReplyKeyboardMarkup,
@@ -19,7 +20,7 @@ from telegram.ext import (
 )
 from telegram.error import NetworkError
 from db import save_application, init_db
-import httpx
+from admin import register_admin_handlers
 
 # --- Логгер ---
 logging.basicConfig(
@@ -334,6 +335,7 @@ if __name__ == "__main__":
     )
 
     app.add_handler(conv_handler)
+    register_admin_handlers(app)
 
     while True:
         try:

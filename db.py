@@ -1,6 +1,9 @@
+# db.py
 import sqlite3
 import logging
 import os
+import io
+import csv
 from contextlib import contextmanager
 from dotenv import load_dotenv
 
@@ -11,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 @contextmanager
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
     try:
         yield conn
         conn.commit()
@@ -64,3 +68,63 @@ def save_application(data: dict):
             data.get("salary_expect"),
         ))
     logger.info(f"Заявка сохранена: {data.get('name')} ({data.get('phone')})")
+
+def fetch_applications(limit=10, offset=0):
+    """Возвращает список заявок (list[dict]) упорядоченных по created_at DESC."""
+    with get_connection() as conn:
+        cur = conn.execute("""
+            SELECT id, position, phone, name, age, branch, schedule,
+                   experience, driving_experience, selfemployed, salary_expect, created_at
+            FROM applications
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        """, (limit, offset))
+        rows = cur.fetchall()
+        return [dict(r) for r in rows]
+
+
+def count_applications():
+    with get_connection() as conn:
+        cur = conn.execute("SELECT COUNT(*) as cnt FROM applications")
+        row = cur.fetchone()
+        return row["cnt"] if row else 0
+
+
+def get_application(app_id: int):
+    with get_connection() as conn:
+        cur = conn.execute("SELECT * FROM applications WHERE id = ?", (app_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def delete_application(app_id: int):
+    with get_connection() as conn:
+        cur = conn.execute("DELETE FROM applications WHERE id = ?", (app_id,))
+        return cur.rowcount  # 1 если удалено, 0 если нет
+
+
+def export_applications_csv():
+    """
+    Возвращает bytes CSV всех заявок в кодировке utf-8.
+    Заголовок соответствует полям таблицы.
+    """
+    with get_connection() as conn:
+        cur = conn.execute("""
+            SELECT id, position, phone, name, age, branch, schedule,
+                   experience, driving_experience, selfemployed, salary_expect, created_at
+            FROM applications
+            ORDER BY created_at DESC
+        """)
+        rows = cur.fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "id", "position", "phone", "name", "age", "branch", "schedule",
+        "experience", "driving_experience", "selfemployed", "salary_expect", "created_at"
+    ])
+    for r in rows:
+        writer.writerow([r["id"], r["position"], r["phone"], r["name"], r["age"], r["branch"],
+                         r["schedule"], r["experience"], r["driving_experience"], r["selfemployed"],
+                         r["salary_expect"], r["created_at"]])
+    return output.getvalue().encode("utf-8")
