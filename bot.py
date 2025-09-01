@@ -91,14 +91,21 @@ async def position(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.contact:
         context.user_data["phone"] = update.message.contact.phone_number
+        await update.message.reply_text(
+            "Отлично! Напиши своё полное имя.",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return NAME
     else:
-        context.user_data["phone"] = update.message.text
-    
-    await update.message.reply_text(
-        "Отлично! Напиши своё полное имя.",
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return NAME
+        # Если пользователь отправил текст вместо контакта, просим использовать кнопку
+        contact_button = KeyboardButton("📱 Поделиться номером", request_contact=True)
+        keyboard = ReplyKeyboardMarkup([[contact_button]], one_time_keyboard=True, resize_keyboard=True)
+        
+        await update.message.reply_text(
+            "Пожалуйста, используйте кнопку «📱 Поделиться номером» для отправки номера телефона.",
+            reply_markup=keyboard
+        )
+        return PHONE
 
 # --- Шаг 4 ---
 async def name(update: Update, context: ContextTypes.DEFAULT_TYPE):
