@@ -292,7 +292,7 @@ async def vacancy_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Позиция: {user_data.get('position')}\n"
             f"Имя: {user_data.get('name')}\n"
             f"Возраст: {user_data.get('age')}\n" 
-            f"Телефон: {user_data.get('phone')}\n"
+            f"Телефон: +{user_data.get('phone')}\n"
             f"Филиал: {user_data.get('branch')}\n"
             f"График: {user_data.get('schedule')}\n"
             f"Опыт: {user_data.get('experience')}\n"
